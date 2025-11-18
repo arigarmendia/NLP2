@@ -23,8 +23,11 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
 ### Task I - Generación de texto avanzada y pruebas con:
 
 - Entrenamiento con 
+
     a. [2 épocas](TP1/Otras_pruebas.ipynb#compare-generate-vs-generateV2).
+    
     b. [10 épocas](TP1/TinyGPT.ipynb#compare-generate-vs-generateV2).
+    
 - Pruebas con 
     - Greedy decoding
     - Temperature sampling
