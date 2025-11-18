@@ -18,7 +18,16 @@
 
 ---
 ### Objetivo
+
 Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderlo a una arquitectura Mixture of Experts (MoE). Se incluyen dos tareas:
+
+### Características principales:
+
+- Modelo pequeño (~10M parámetros)
+- Tokenizer character-level 100% manual (vocabulario de 65 tokens)
+- Dataset: TinyShakespeare (100k caracteres)
+- Entrenamiento en Apple Silicon (MPS) con bfloat16 + AMP
+
 
 ### Task I - Generación de texto avanzada y pruebas con:
 
@@ -27,7 +36,7 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
     a. [2 épocas](TP1/Otras_pruebas.ipynb#compare-generate-vs-generateV2).
     
     b. [10 épocas](TP1/TinyGPT.ipynb#compare-generate-vs-generateV2).
-    
+
 - Pruebas con 
     - Greedy decoding
     - Temperature sampling
@@ -43,14 +52,6 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
     a. [Resultados con 2 épocas](TP1/Otras_pruebas.ipynb#visualizing-attention---2-epochs)
     
     b. [Resultados con 5 épocas](TP1/TinyGPT.ipynb#visualizing-attention---5-epochs)
-
-### Características principales:
-
-- Modelo pequeño (~10M parámetros)
-- Tokenizer character-level 100% manual (vocabulario de 65 tokens)
-- Dataset: TinyShakespeare (100k caracteres)
-- Entrenamiento en Apple Silicon (MPS) con bfloat16 + AMP
-
 
 ---
 ## Contacto
