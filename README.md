@@ -22,7 +22,9 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
 
 ### Task I - Generación de texto avanzada y pruebas con:
 
-- Entrenamiento con 2 y 10 épocas.
+- Entrenamiento con 
+    a. [2 épocas](TP1/Otras_pruebas.ipynb#compare-generate-vs-generateV2).
+    b. [10 épocas](TP1/TinyGPT.ipynb#compare-generate-vs-generateV2).
 - Pruebas con 
     - Greedy decoding
     - Temperature sampling
@@ -35,9 +37,9 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
 - Conversión del TinyGPT original a un TinyGPT-MoE con 4 heads.
 - Análisis comparativo de mapas de atención:
 
-    a. [Resultados con 2 épocas](##visualizing-attention---2-epochs)
+    a. [Resultados con 2 épocas](TP1/Otras_pruebas.ipynb#visualizing-attention---2-epochs)
     
-    b. [Resultados con 5 épocas](##visualizing-attention---5-epochs)
+    b. [Resultados con 5 épocas](TP1/TinyGPT.ipynb#visualizing-attention---5-epochs)
 
 ### Características principales:
 
