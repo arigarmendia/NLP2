@@ -35,9 +35,9 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
 - Conversión del TinyGPT original a un TinyGPT-MoE con 4 heads.
 - Análisis comparativo de mapas de atención:
 
-    a. [Resultados con 2 épocas](#visualizing-attention---2-epochs)
+    a. [Resultados con 2 épocas](##visualizing-attention---2-epochs)
     
-    b. [Resultados con 5 épocas](#visualizing-attention---5-epochs)
+    b. [Resultados con 5 épocas](##visualizing-attention---5-epochs)
 
 ### Características principales:
 
