@@ -40,10 +40,18 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
     b. [Resultados con 5 épocas](#visualizing-attention---5-epochs)
 
 ### Características principales:
+
 - Modelo pequeño (~10M parámetros)
 - Tokenizer character-level 100% manual (vocabulario de 65 tokens)
 - Dataset: TinyShakespeare (100k caracteres)
 - Entrenamiento en Apple Silicon (MPS) con bfloat16 + AMP
+
+
+---
+## Contacto
+
+* [✉️](arigarmendia@gmail.com) Ariadna Garmendia
+
 
 
 
