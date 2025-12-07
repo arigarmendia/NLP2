@@ -61,11 +61,12 @@ pip install streamlit python-dotenv groq langchain langchain-groq \
            langchain-community langchain-text-splitters langchain-pinecone \
            pinecone-client pypdf
 ```
-
+<!--
 4. Place your resume at:
 ```text
-data/Ariadna_Garmendia_resume.pdf
+data/
 ```
+-->
 
 ## Configuration
 
