@@ -78,7 +78,7 @@ All configuration is handled in `config.py`:
 
 Groq model defaults or embedding model can be changed if needed.
 
-## Step 1: Ingest your resume into Pinecone
+## Step 1: Ingest a resume into Pinecone
 
 Before using the chatbot, run the ingestion script once (or whenever the resume file is updated):
 ```bash
@@ -86,7 +86,7 @@ python -m rag.pdf_ingest
 ```
 
 This will:
-- Load your resume PDF.
+- Load the resume PDF.
 - Split it into text chunks.
 - Use Pinecone's embedding model to generate vector embeddings.
 - Upsert the chunks into the `cv-rag-index` Pinecone index.
