@@ -1,11 +1,14 @@
 # CV RAG Chatbot (Groq + Pinecone + LangChain)
 
-This project is a Streamlit application that lets you chat with an AI assistant about the contents of my resume. It uses:
+This project is a Streamlit application that lets you chat with an AI assistant about the contents of a resume. It uses:
 - Groq LLMs for fast, low-latency generation.  
 - Pinecone as a vector database and embedding provider.  
 - LangChain for RAG orchestration and conversational memory.  
 
 The project ingests the uploaded resume into Pinecone, and the chatbot answers questions strictly based on that document.
+
+![diagram](chatbot_diagram.png)
+
 
 ## Features
 
@@ -27,8 +30,8 @@ chatbot_cv/
 │   ├── pdf_ingest.py    # One-off: ingest data/resume.pdf into Pinecone
 │   ├── pinecone_client.py
 │   └── retriever.py     # RAG chain definition (retriever + Groq model)
-└── data/                # Resume
-    └── Ariadna_Garmendia_resume.pdf       
+└── data/                # Folder to upload Resume
+    └── resume.pdf       
 ```
 
 ## Prerequisites
@@ -42,7 +45,7 @@ Create a `.env` file in the project root:
 ```bash
 GROQ_API_KEY=your_groq_key_here
 PINECONE_API_KEY=your_pinecone_key_here
-RESUME_PATH=data/Ariadna_Garmendia_resume.pdf
+RESUME_PATH=data/resume.pdf
 ```
 
 ## Installation
@@ -61,12 +64,6 @@ pip install streamlit python-dotenv groq langchain langchain-groq \
            langchain-community langchain-text-splitters langchain-pinecone \
            pinecone-client pypdf
 ```
-<!--
-4. Place your resume at:
-```text
-data/
-```
--->
 
 ## Configuration
 
