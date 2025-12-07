@@ -1,101 +1,88 @@
 import logging
-from typing import List
-from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import RunnableParallel, RunnablePassthrough
-from langchain_pinecone import PineconeVectorStore, PineconeEmbeddings
-from config import PINECONE_EMBEDDING_MODEL, RETRIEVAL_K
-from rag.pinecone_client import get_index
-from llm_client import get_chat_model
+import time
+from pinecone import Pinecone, ServerlessSpec
+from config import (
+    PINECONE_API_KEY,
+    PINECONE_CLOUD,
+    PINECONE_REGION,
+    PINECONE_INDEX_NAME,
+    PINECONE_EMBEDDING_DIMENSION,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Cache for Pinecone client and index
+_pinecone_client = None
+_index_cache = None
 
-def get_resume_retriever(k: int = None):
-    """
-    Create a retriever for the resume vector store.
+
+def get_pinecone_client() -> Pinecone:
+    """Get or create Pinecone client (cached)."""
+    global _pinecone_client
     
-    Args:
-        k: Number of documents to retrieve. Defaults to RETRIEVAL_K from config.
-    """
-    if k is None:
-        k = RETRIEVAL_K
+    if _pinecone_client is None:
+        if not PINECONE_API_KEY:
+            raise ValueError("PINECONE_API_KEY is not set in the environment.")
+        
+        logger.info("Initializing Pinecone client...")
+        _pinecone_client = Pinecone(api_key=PINECONE_API_KEY)
+    
+    return _pinecone_client
+
+
+def ensure_index(pc: Pinecone):
+    """Ensure the Pinecone index exists, create if necessary. Returns cached index."""
+    global _index_cache
+    
+    if _index_cache is not None:
+        return _index_cache
     
     try:
-        # Use cached index
-        index = get_index()
-        
-        # Initialize embeddings
-        embeddings = PineconeEmbeddings(model=PINECONE_EMBEDDING_MODEL)
-        
-        # Create vectorstore
-        vectorstore = PineconeVectorStore(index=index, embedding=embeddings)
-        
-        logger.info(f"Retriever initialized with k={k}")
-        return vectorstore.as_retriever(search_kwargs={"k": k})
-        
-    except Exception as e:
-        logger.error(f"Failed to create retriever: {e}")
-        raise
-
-
-def format_docs(docs: List[Document]) -> str:
-    """Format retrieved documents for the prompt."""
-    if not docs:
-        return "No relevant context found."
-    
-    parts = []
-    for i, d in enumerate(docs):
-        parts.append(f"[Chunk {i+1}] {d.page_content}")
-    
-    return "\n\n".join(parts)
-
-
-def get_rag_chain(system_prompt: str, model_name: str):
-    """
-    Create a RAG chain with conversational memory support.
-    
-    Args:
-        system_prompt: System message for the LLM
-        model_name: Name of the Groq model to use
-    """
-    try:
-        llm = get_chat_model(model_name=model_name)
-        retriever = get_resume_retriever()
-        
-        # Create prompt template with memory support
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            MessagesPlaceholder(variable_name="chat_history"),
-            (
-                "system",
-                "Use only the following resume context to answer. "
-                "If the context is not enough, say you are not sure.\n\n{context}"
-            ),
-            ("human", "{question}"),
-        ])
-        
-        # Build RAG pipeline with proper chat_history passing
-        rag_pipeline = (
-            RunnableParallel(
-                question=RunnablePassthrough(),
-                docs=retriever,
-                # Pass through chat_history if it exists
-                chat_history=lambda x: x.get("chat_history", []),
+        if not pc.has_index(PINECONE_INDEX_NAME):
+            logger.info(f"Index '{PINECONE_INDEX_NAME}' not found. Creating...")
+            
+            pc.create_index(
+                name=PINECONE_INDEX_NAME,
+                dimension=PINECONE_EMBEDDING_DIMENSION,
+                metric="cosine",
+                spec=ServerlessSpec(
+                    cloud=PINECONE_CLOUD,
+                    region=PINECONE_REGION
+                )
             )
-            | (lambda inputs: {
-                "question": inputs["question"],
-                "context": format_docs(inputs["docs"]),
-                "chat_history": inputs["chat_history"],
-            })
-            | prompt
-            | llm
-        )
+            
+            # Wait for index to be ready
+            logger.info("Waiting for index to be ready...")
+            while not pc.describe_index(PINECONE_INDEX_NAME).status['ready']:
+                time.sleep(1)
+            
+            logger.info(f"Index '{PINECONE_INDEX_NAME}' created successfully.")
+        else:
+            logger.info(f"Index '{PINECONE_INDEX_NAME}' already exists.")
         
-        logger.info(f"RAG chain created with model: {model_name}")
-        return rag_pipeline
+        _index_cache = pc.Index(PINECONE_INDEX_NAME)
+        return _index_cache
         
     except Exception as e:
-        logger.error(f"Failed to create RAG chain: {e}")
-        raise
+        logger.error(f"Failed to create/access Pinecone index: {e}")
+        raise RuntimeError(f"Failed to create/access Pinecone index: {e}")
+
+
+def get_index():
+    """Get the cached Pinecone index (preferred method for retrieval)."""
+    global _index_cache
+    
+    if _index_cache is None:
+        pc = get_pinecone_client()
+        _index_cache = ensure_index(pc)
+    
+    return _index_cache
+
+
+def reset_cache():
+    """Reset the cached client and index (useful for testing)."""
+    global _pinecone_client, _index_cache
+    _pinecone_client = None
+    _index_cache = None
+    logger.info("Pinecone cache reset.")

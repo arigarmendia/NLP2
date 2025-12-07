@@ -25,7 +25,7 @@ RETRIEVAL_K = int(os.getenv("RETRIEVAL_K", "4"))
 
 # LLM Configuration
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "llama-3.1-8b-instant")
-DEFAULT_TEMPERATURE = float(os.getenv("DEFAULT_TEMPERATURE", "0.7"))
+DEFAULT_TEMPERATURE = float(os.getenv("DEFAULT_TEMPERATURE", "0.5"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "1000"))
 
 # Ingestion Configuration

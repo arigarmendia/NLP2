@@ -1,14 +1,19 @@
 import logging
-from langchain_community.document_loaders import PyPDFLoader
+import sys
+from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
-from langchain_pinecone import PineconeVectorStore, PineconeEmbeddings
+from langchain_pinecone import PineconeVectorStore
+from pinecone import Pinecone
+from langchain_core.embeddings import Embeddings
+from typing import List
 from config import (
     RESUME_PATH,
     PINECONE_EMBEDDING_MODEL,
     CHUNK_SIZE,
     CHUNK_OVERLAP,
     BATCH_SIZE,
+    PINECONE_API_KEY,
 )
 from rag.pinecone_client import get_pinecone_client, get_index
 
@@ -16,13 +21,60 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+class PineconeInferenceEmbeddings(Embeddings):
+    """Pinecone Inference API embeddings - compatible with Pinecone SDK 6.x+"""
+    
+    def __init__(self, model: str, pinecone_api_key: str):
+        self.model = model
+        self.pc = Pinecone(api_key=pinecone_api_key)
+        logger.info(f"Initialized Pinecone Inference embeddings with model: {model}")
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """Embed a list of documents (passages)."""
+        if not texts:
+            return []
+        try:
+            response = self.pc.inference.embed(
+                model=self.model,
+                inputs=texts,
+                parameters={"input_type": "passage"}
+            )
+            return [item["values"] for item in response.data]
+        except Exception as e:
+            logger.error(f"Failed to embed documents: {e}")
+            raise
+
+    def embed_query(self, text: str) -> List[float]:
+        """Embed a single query."""
+        try:
+            response = self.pc.inference.embed(
+                model=self.model,
+                inputs=[text],
+                parameters={"input_type": "query"}
+            )
+            return response.data[0]["values"]
+        except Exception as e:
+            logger.error(f"Failed to embed query: {e}")
+            raise
+
+
 def load_and_split_resume(path: str) -> list[Document]:
     """Load PDF and split into chunks."""
     logger.info(f"Loading resume from {path}...")
     
     try:
-        loader = PyPDFLoader(path)
+        # Try with extract_images=False to avoid character spacing issues
+        loader = PyPDFLoader(path, extract_images=False)
         docs = loader.load()
+        
+        # If text has excessive spacing, try to clean it
+        for doc in docs:
+            if '  ' in doc.page_content[:100]:  # Check for double spaces
+                logger.warning("Detected spacing issues in PDF extraction, attempting cleanup...")
+                # Remove extra spaces between characters
+                import re
+                doc.page_content = re.sub(r'(?<=\w)\s(?=\w)', '', doc.page_content)
+        
         logger.info(f"Loaded {len(docs)} pages from resume.")
     except Exception as e:
         logger.error(f"Failed to load PDF: {e}")
@@ -58,9 +110,16 @@ def ingest_resume(force_reingest: bool = False):
         force_reingest: If True, clear existing vectors and re-ingest.
     """
     try:
+        logger.info("Starting resume ingestion process...")
+        
         # Initialize Pinecone
         pc = get_pinecone_client()
         index = get_index()
+        
+        # Log index info
+        stats = index.describe_index_stats()
+        logger.info(f"Using embedding model: {PINECONE_EMBEDDING_MODEL}")
+        logger.info(f"Index dimension: {stats.dimension}")
         
         # Check for existing vectors
         existing_count = check_existing_vectors(index)
@@ -91,8 +150,12 @@ def ingest_resume(force_reingest: bool = False):
                 d.metadata = {}
             d.metadata.setdefault("source", "resume")
         
-        # Initialize embeddings and vectorstore
-        embeddings = PineconeEmbeddings(model=PINECONE_EMBEDDING_MODEL)
+        # Initialize embeddings using Pinecone Inference API
+        embeddings = PineconeInferenceEmbeddings(
+            model=PINECONE_EMBEDDING_MODEL,
+            pinecone_api_key=PINECONE_API_KEY
+        )
+        
         vectorstore = PineconeVectorStore(index=index, embedding=embeddings)
         
         # Batch processing
@@ -125,7 +188,23 @@ def ingest_resume(force_reingest: bool = False):
 
 
 if __name__ == "__main__":
-    import sys
+    print("=" * 60)
+    print("Starting PDF Ingestion Script")
+    print("=" * 60)
     
     force = "--force" in sys.argv or "-f" in sys.argv
-    ingest_resume(force_reingest=force)
+    print(f"Force reingest mode: {force}")
+    print()
+    
+    try:
+        ingest_resume(force_reingest=force)
+        print()
+        print("=" * 60)
+        print("Ingestion completed successfully!")
+        print("=" * 60)
+    except Exception as e:
+        print()
+        print("=" * 60)
+        print(f"ERROR: Ingestion failed - {e}")
+        print("=" * 60)
+        sys.exit(1)
