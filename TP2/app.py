@@ -10,22 +10,36 @@ logger = logging.getLogger(__name__)
 def main():
     st.set_page_config(
         page_title="CV RAG Chatbot",
-        page_icon="💼",
+        page_icon="img/app_logo.png",
         layout="wide",
     )
     
-    st.title("💼 CV RAG Chatbot (Groq + Pinecone)")
+    # st.title("Resume RAG Chatbot")
 
-    st.markdown(
-        """
-        Ask questions about your resume.
+    # st.markdown(
+    #     """
+    #     Ask questions about your resume.
 
+    #     This chatbot uses:
+    #     - **Groq LLM** for fast generation
+    #     - **Pinecone** for vector search over your resume
+    #     - **LangChain** for RAG orchestration and conversational memory
+    #     """
+    # )
+    col1, col2 = st.columns([2, 3])  # left content wider
+
+    with col1:
+        st.title("Resume RAG Chatbot")
+        st.write("Ask questions about your resume.")
+        st.write("""
         This chatbot uses:
-        - **Groq LLM** for fast generation
-        - **Pinecone** for vector search over your resume
-        - **LangChain** for RAG orchestration and conversational memory
-        """
-    )
+        - **Groq LLM** for fast generation  
+        - **Pinecone** for query embedding + vector search  
+        - **LangChain** for RAG orchestration  
+        """)
+
+    with col2:
+        st.image("img/chatbot_diagram.png", width=550)
 
     # Sidebar settings
     st.sidebar.title("⚙️ Chatbot Settings")

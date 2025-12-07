@@ -7,7 +7,7 @@ This project is a Streamlit application that lets you chat with an AI assistant 
 
 The project ingests the uploaded resume into Pinecone, and the chatbot answers questions strictly based on that document.
 
-![diagram](chatbot_diagram.png)
+![diagram](img/chatbot_diagram.png)
 
 
 ## Features
