@@ -16,7 +16,6 @@
 
 [TP1 - TinyGPT con Mixture of Experts (MoE)](/TP1/TP1-TinyGPT.ipynb) 
 
----
 ### Objetivo
 
 Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderlo a una arquitectura Mixture of Experts (MoE). Se incluyen dos tareas:
