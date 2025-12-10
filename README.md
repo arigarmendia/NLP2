@@ -56,7 +56,8 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
 ### Trabajo práctico Nro 2:
 
 [TP2 - CV RAG Chatbot](/TP2/) 
-[Demo TP2]()
+
+[Demo TP2](https://youtu.be/k_k8AAXRQiM)
 
 ---
 ### Trabajo práctico Nro 3:
