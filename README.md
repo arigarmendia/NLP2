@@ -61,8 +61,9 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
 ---
 ### Trabajo práctico Nro 3:
 
-[TP3 - Multi-Agent Resume RAG System](/TP3/) 
-[Demo TP3](https://youtu.be/tkzNf0zrn1I)
+[TP3 - Multi-Agent Resume RAG System](/TP3/)
+
+![Demo TP3](https://youtu.be/tkzNf0zrn1I)
 ---
 
 ## Contacto
