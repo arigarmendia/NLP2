@@ -187,7 +187,7 @@ def main():
         st.markdown("### 📝 Conversation History")
         
         # Show last N messages based on slider
-        display_count = min(conversational_memory_length * 2, len(st.session_state.chat_log))
+        display_count = min(conversational_memory_length, len(st.session_state.chat_log))
         recent_messages = st.session_state.chat_log[-display_count:]
         
         for i, msg in enumerate(recent_messages):
