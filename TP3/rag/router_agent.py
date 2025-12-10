@@ -12,7 +12,7 @@ class RouterAgent:
     """Routes queries to appropriate person agents."""
     
     def __init__(self, model_name: str = "llama-3.3-70b-versatile"):
-        # Use more capable model for routing
+        # Limit max_tokens for routing (only needs JSON response)
         self.llm = get_chat_model(model_name=model_name, temperature=0.0, max_tokens=150)
         self.persons = PERSONS
     
@@ -36,11 +36,10 @@ class RouterAgent:
             for pid, info in self.persons.items()
         ])
         
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", f"""You are a routing assistant analyzing user queries about resumes.
+        system_message = """You are a routing assistant analyzing user queries about resumes.
 
 Available persons:
-{person_list}
+""" + person_list + """
 
 Analyze the query and determine:
 1. Which person(s) they're asking about
@@ -57,7 +56,10 @@ Return ONLY valid JSON (no extra text):
     "type": "single|multiple|comparison|all",
     "person_ids": ["person_id1", ...],
     "intent": "brief description"
-}}"""),
+}}"""
+        
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_message),
             MessagesPlaceholder(variable_name="chat_history", optional=True),
             ("human", "{query}")
         ])

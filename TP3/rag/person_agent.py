@@ -1,6 +1,7 @@
 import logging
 from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
-from langchain_core.tools import Tool
+#from langchain_core.tools import Tool
+from langchain_core.tools import tool
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from llm_client import get_chat_model
 from config import PERSONS
@@ -17,33 +18,40 @@ class PersonAgent:
         self.person_info = PERSONS[person_id]
         self.retriever_func = retriever_func
         self.llm = get_chat_model(model_name=model_name, max_tokens=300)
+        self.search_resume_tool = self.create_search_tool()
         self.agent = self._create_agent()
     
-    def _search_resume(self, query: str) -> str:
-        """Search this person's resume."""
-        try:
-            # Use retriever with person_id filter
-            results = self.retriever_func(query, person_id=self.person_id)
-            
-            if not results:
-                return f"No relevant information found in {self.person_info['name']}'s resume."
-            
-            context = "\n\n".join([doc.page_content for doc in results])
-            return f"Information from {self.person_info['name']}'s resume:\n\n{context}"
-        except Exception as e:
-            logger.error(f"Error searching {self.person_id}: {e}")
-            return f"Error retrieving information: {e}"
+    def create_search_tool(self):
+    # def _search_resume(self, query: str) -> str:
+        @tool
+        def search_resume(query: str) -> str:
+            """Search this person's resume for experience, skills, education, projects, or any other details."""
+            try:
+                # Use retriever with person_id filter
+                results = self.retriever_func(query, person_id=self.person_id)
+                
+                if not results:
+                    return f"No relevant information found in {self.person_info['name']}'s resume."
+                
+                context = "\n\n".join([doc.page_content for doc in results])
+                return f"Information from {self.person_info['name']}'s resume:\n\n{context}"
+            except Exception as e:
+                logger.error(f"Error searching {self.person_id}: {e}")
+                return f"Error retrieving information: {e}"
+        return search_resume
     
     def _create_agent(self) -> AgentExecutor:
         """Create LangChain agent."""
-        search_tool = Tool(
-            name=f"search_{self.person_id}_resume",
-            func=self._search_resume,
-            description=(
-                f"Search {self.person_info['name']}'s resume for experience, "
-                "skills, education, projects, or any other details."
-            )
-        )
+        # search_tool = search_resume.bind(person_id=self.person_id, retriever_func=self.retriever_func, person_info=self.person_info)
+
+        # search_tool = Tool(
+        #     name=f"search_{self.person_id}_resume",
+        #     func=self._search_resume,
+        #     description=(
+        #         f"Search {self.person_info['name']}'s resume for experience, "
+        #         "skills, education, projects, or any other details."
+        #     ),
+        # )
         
         prompt = ChatPromptTemplate.from_messages([
             ("system", f"""You are an AI assistant answering questions about {self.person_info['name']}'s resume.
@@ -61,16 +69,18 @@ Be professional and helpful."""),
             ("human", "{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ])
-        
+
         agent = create_tool_calling_agent(
             llm=self.llm,
-            tools=[search_tool],
+            tools=[self.search_resume_tool],
+            # tools=[search_tool],
             prompt=prompt
         )
         
         return AgentExecutor(
             agent=agent,
-            tools=[search_tool],
+            # tools=[search_tool],
+            tools=[self.search_resume_tool],
             verbose=True,
             handle_parsing_errors=True
         )

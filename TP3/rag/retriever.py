@@ -124,7 +124,7 @@ def retrieve_with_filter(query: str, person_id: str = None, k: int = None):
         List of Document objects
     """
     retriever = get_resume_retriever(k=k, person_id=person_id)
-    return retriever.get_relevant_documents(query)
+    return retriever.invoke(query)
 
 
 def format_docs(docs: List[Document]) -> str:
@@ -173,7 +173,7 @@ def get_rag_chain(system_prompt: str, model_name: str):
         rag_pipeline = (
             RunnableParallel(
                 question=RunnablePassthrough(),
-                docs=retriever,
+                docs=retriever.invoke,
                 # Pass through chat_history if it exists
                 chat_history=lambda x: x.get("chat_history", []),
             )
