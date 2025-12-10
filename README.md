@@ -54,6 +54,19 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
     b. [Resultados con 5 épocas](TP1/TinyGPT.ipynb#visualizing-attention---5-epochs)
 
 ---
+
+---
+### Trabajo práctico Nro 2:
+
+[TP2 - CV RAG Chatbot](/TP2/) 
+
+---
+### Trabajo práctico Nro 3:
+
+[TP3 - Multi-Agent Resume RAG System](/TP3/) 
+
+---
+
 ## Contacto
 
 * [✉️](arigarmendia@gmail.com) Ariadna Garmendia
