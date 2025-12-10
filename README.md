@@ -54,8 +54,6 @@ Implementar desde cero un modelo tipo GPT (decoder-only transformer) y extenderl
     b. [Resultados con 5 épocas](TP1/TinyGPT.ipynb#visualizing-attention---5-epochs)
 
 ---
-
----
 ### Trabajo práctico Nro 2:
 
 [TP2 - CV RAG Chatbot](/TP2/) 
