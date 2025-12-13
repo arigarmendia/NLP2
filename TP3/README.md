@@ -1,5 +1,7 @@
 # TP3: Multi-Agent Resume RAG System
 
+[Demo TP3](https://youtu.be/YuN7lnwyFSQ)
+
 This project is an intelligent multi-agent system that efficiently responds to questions about multiple candidates' resumes using a shared vector database with metadata filtering. It uses:
 
 - Streamlit as the user interface.

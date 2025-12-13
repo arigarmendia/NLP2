@@ -1,5 +1,7 @@
 # CV RAG Chatbot (Groq + Pinecone + LangChain)
 
+[Demo TP2](https://youtu.be/k_k8AAXRQiM)
+
 This project is a Streamlit application that lets you chat with an AI assistant about the contents of a resume. It uses:
 - Groq LLMs for fast, low-latency generation.  
 - Pinecone as a vector database and embedding provider.  
