@@ -10,6 +10,7 @@ This project is an intelligent multi-agent system that efficiently responds to q
 - Groq LLMs for fast, low-latency generation.  
 - LangChain for RAG orchestration and conversational memory.
 
+Requirement: if no candidate is specified, the system assumes the query is about a specific candidate.
 
 ## Architecture diagram
 

@@ -43,3 +43,6 @@ PERSONS = {
         "person_id": "ariadna_garmendia"
     },
 }
+
+# Default resume if no person is specified
+DEFAULT_PERSON = "ariadna_garmendia"

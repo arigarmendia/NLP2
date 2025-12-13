@@ -88,8 +88,16 @@ Return ONLY valid JSON (no extra text):
                 if pid in self.persons
             ]
             
-            if not valid_ids:
+            # Defaults to specific person if no names mentioned
+            if not valid_ids and not chat_history:
+                # No person identified and no conversation context
+                from config import DEFAULT_PERSON  
+                valid_ids = [DEFAULT_PERSON]
+                result["type"] = "single"
+            elif not valid_ids:
                 valid_ids = list(self.persons.keys())
+            # if not valid_ids:
+            #     valid_ids = list(self.persons.keys())
             
             return {
                 "type": result.get("type", "all"),
